@@ -1,0 +1,69 @@
+[project]
+name = "mfx-sdk-conformance"
+version = "0.1.0"
+description = "The shared test suite every MFX Hub SDK must pass: language-neutral cases and a fake MFX Hub that plays them back"
+requires-python = ">=3.12"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = [
+    # The fake hub's HTTP and WebSocket server, in one library.
+    "aiohttp>=3.10",
+    # Verifying each request's Ed25519 signature against the published test key.
+    "cryptography>=43.0",
+]
+
+[project.urls]
+Homepage = "https://mfxhub.com"
+Documentation = "https://docs.mfxhub.com"
+Source = "https://github.com/mfx-platform/mfx-sdk-conformance"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "pytest-aiohttp>=1.0",
+    "pytest-cov>=6.0",
+    "mypy>=1.13",
+    "ruff>=0.8",
+    "pyyaml>=6.0",
+    "types-pyyaml>=6.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mfx_fake_hub"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests", "tools"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "A", "C4", "T20", "SIM", "ARG", "ASYNC", "S", "D1"]
+ignore = ["S101", "D105", "D107"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["ARG", "S105", "S106", "D1"]
+"tools/**" = ["D1", "T20"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "--cov=src/mfx_fake_hub --cov-report=term-missing --cov-fail-under=100"
+markers = ["tc(case_id): the id of the test case this test proves"]
+
+[tool.coverage.report]
+exclude_also = ["if TYPE_CHECKING:", "raise NotImplementedError"]

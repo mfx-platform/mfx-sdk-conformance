@@ -1,0 +1,24 @@
+# Weekly update proposals for the Python dependencies (from uv.lock) and the pinned actions.
+# This repository is published from the one the suite is developed in, so a proposal here is applied
+# there and arrives with the next release; the pull request is then closed with a link to it.
+version: 2
+updates:
+  - package-ecosystem: uv
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      python:
+        patterns: ["*"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+    # A new major version of an action changes its inputs or its runtime: taken on purpose, with
+    # the workflows checked, not merged as a routine update.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]

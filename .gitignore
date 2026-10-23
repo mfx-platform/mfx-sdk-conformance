@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# Node
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+
+# Secrets — nothing credential-shaped is ever committed (guardrail #2)
+.env
+.env.*
+*.pem
+*.pfx
+*.key
+*.publishsettings
+azureauth.json
+
+# Local
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+!.vscode/extensions.json
+.claude/
+reports/
+tc-manifest.json
