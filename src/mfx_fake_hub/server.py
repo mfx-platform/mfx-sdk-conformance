@@ -114,6 +114,15 @@ def request_problems(
 
 
 @dataclass
+class StreamProgress:
+    """How far each scripted stream connection got."""
+
+    opened: int = 0
+    #: Steps completed, per connection opened.
+    done: list[int] = field(default_factory=list)
+
+
+@dataclass
 class Hub:
     """The loaded case and what has happened to it."""
 
@@ -124,6 +133,7 @@ class Hub:
     requests: int = 0
     problems: list[str] = field(default_factory=list)
     nonces: set[str] = field(default_factory=set)
+    stream: StreamProgress = field(default_factory=StreamProgress)
 
     def load(self, case_id: str) -> None:
         """Load a case by id and forget everything about the last one."""
@@ -131,6 +141,7 @@ class Hub:
         self.step = self.taken = self.requests = 0
         self.problems = []
         self.nonces = set()
+        self.stream = StreamProgress()
 
     def _current(self) -> Step | None:
         assert self.case is not None
@@ -196,7 +207,9 @@ class Hub:
 
     def verdict(self) -> dict[str, Any]:
         """Whether every step was satisfied in order and nothing else arrived."""
-        problems = list(self.problems)
+        from mfx_fake_hub.stream import stream_problems  # noqa: PLC0415 - the two import each other
+
+        problems = list(self.problems) + stream_problems(self)
         if self.case is not None:
             for index, step in enumerate(self.case.server[self.step :], start=self.step):
                 if step.times == "any" and index == self.step and self.taken > 0:
@@ -247,7 +260,13 @@ def make_app(hub: Hub) -> web.Application:
             content_type=None if payload is None else "application/json",
         )
 
+    from mfx_fake_hub.stream import play_stream  # noqa: PLC0415 - the two import each other
+
+    async def stream(request: web.Request) -> web.WebSocketResponse:
+        return await play_stream(hub, request)
+
     app = web.Application()
+    app.router.add_get("/v1/stream", stream)
     app.router.add_get("/_hub/cases", listing)
     app.router.add_post("/_hub/case", load)
     app.router.add_get("/_hub/verdict", verdict)

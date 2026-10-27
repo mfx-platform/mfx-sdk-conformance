@@ -30,6 +30,8 @@ class Case:
     call: dict[str, Any]
     observe: dict[str, Any]
     server: tuple[Step, ...] = field(default_factory=tuple)
+    #: The stream script: one list of steps per WebSocket connection, in the order they open.
+    stream: tuple[list[dict[str, Any]], ...] = field(default_factory=tuple)
     #: The contract section the rule comes from, by its heading.
     source: str = ""
     #: The case as written, fixtures expanded: what a runner is handed.
@@ -48,6 +50,7 @@ class Case:
             call=raw["call"],
             observe=raw["observe"],
             server=steps,
+            stream=tuple(raw.get("stream", [])),
             source=raw.get("source", ""),
             raw=raw,
         )

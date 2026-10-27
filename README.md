@@ -10,7 +10,7 @@ SDKs keep exactly the same promises.
 
 | Path | What it is |
 |---|---|
-| [`cases/`](cases/) | One JSON file per area: signing, errors, decimals, idempotency, paging, execution. Each case is one rule. |
+| [`cases/`](cases/) | One JSON file per area: signing, errors, decimals, idempotency, paging, execution, stream. Each case is one rule. |
 | [`fixtures.json`](fixtures.json) | API objects cases refer to by name with `$fixture`, so a case does not repeat a whole terminal. |
 | [`vocabulary.json`](vocabulary.json) | The neutral names cases use: operations, error kinds, markers and outcomes. A runner maps each to its language. |
 | [`src/mfx_fake_hub/`](src/mfx_fake_hub/) | The fake MFX Hub: checks every request against the case, verifies its signature with the test key, and answers as the case says. |
@@ -30,14 +30,16 @@ SDKs keep exactly the same promises.
 ```
 
 `call` is what the caller does, `server` is every request the SDK must send and the answer each
-gets (none here: it must refuse first), and `observe` is what the caller must see.
+gets (none here: it must refuse first), and `observe` is what the caller must see. A stream case has
+`stream` instead: one list of steps per WebSocket connection, each a frame the SDK must send
+(`recv`), a frame the hub sends (`send`), or a close with its code (`close`).
 
 ## Running it from an SDK
 
 An SDK pins a release tag, so a new case reaches it only when it moves the pin.
 
 ```bash
-git clone --depth 1 --branch v0.1.0 https://github.com/mfx-platform/mfx-sdk-conformance
+git clone --depth 1 --branch v0.2.0 https://github.com/mfx-platform/mfx-sdk-conformance
 pip install ./mfx-sdk-conformance
 python -m mfx_fake_hub --cases mfx-sdk-conformance/cases   # prints: listening http://127.0.0.1:<port>/v1
 ```

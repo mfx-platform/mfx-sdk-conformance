@@ -5,6 +5,15 @@ an SDK that passed the previous one fail, which is the point.
 
 ## Unreleased
 
+## 0.2.0
+
+- **stream**: the fake hub serves the WebSocket stream from a script per connection. Eight cases:
+  a signed upgrade and messages in order; a seq gap counted; a lifetime close (4009) and a
+  slow-consumer close (4008) each reconnect and resume from the last seq; re-authenticate (4001)
+  stops with an authentication error and no reconnect; prices subscribed again, not resumed, after
+  a reconnect; a resync reported and not counted as a gap; a refused channel costing only itself.
+- The vocabulary gains `stream.read`.
+
 ## 0.1.0
 
 The first release: the fake MFX Hub and 64 cases.

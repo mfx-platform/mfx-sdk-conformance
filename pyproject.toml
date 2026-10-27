@@ -1,6 +1,6 @@
 [project]
 name = "mfx-sdk-conformance"
-version = "0.1.0"
+version = "0.2.0"
 description = "The shared test suite every MFX Hub SDK must pass: language-neutral cases and a fake MFX Hub that plays them back"
 requires-python = ">=3.12"
 readme = "README.md"
