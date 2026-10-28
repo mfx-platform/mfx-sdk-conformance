@@ -38,6 +38,9 @@ def test_every_case_is_well_formed_and_the_error_cases_follow_the_api(tmp_path: 
         assert len(outcome) == 1 and outcome <= set(VOCABULARY["observe"]), case.id
         if "raises" in case.observe:
             assert case.observe["raises"] in kinds, case.id
+        if "returns" in case.observe:  # a runner maps only the fields the vocabulary names
+            named = set(VOCABULARY["ops"][case.call["op"]]["returns"])
+            assert set(case.observe["returns"]) <= named, case.id
         for step in case.server:
             assert step.expect["path"].startswith("/v1/"), case.id
         assert "$fixture" not in json.dumps(case.raw), case.id

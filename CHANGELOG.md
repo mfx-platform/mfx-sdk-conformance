@@ -5,6 +5,17 @@ an SDK that passed the previous one fail, which is the point.
 
 ## Unreleased
 
+## 0.3.0
+
+- **idempotency**: a write sent again with the same key and already final is answered with its
+  state only, so the SDK reads the command once and returns the original result in full: price,
+  tickets and the broker's comment, with `ok` true for a success. When that read fails, the call
+  still returns what the platform said, and never raises. A duplicate still in flight is reported
+  as it is, with no extra read. Two new cases; `idempotency.duplicate_is_the_original` now answers
+  a command still executing.
+- The vocabulary's `execution.place_order` returns `exec_price`, `position` and `comment_raw` too,
+  and every field a case observes must be one the vocabulary names.
+
 ## 0.2.0
 
 - **stream**: the fake hub serves the WebSocket stream from a script per connection. Eight cases:
