@@ -5,6 +5,16 @@ an SDK that passed the previous one fail, which is the point.
 
 ## Unreleased
 
+## 0.4.0
+
+- **stream**: four more cases, 12 in all. Closing the stream ends a read that is waiting, with
+  nothing and no reconnect (a stream that reconnected instead kept a script from ever ending). A
+  message of a type the SDK has never heard of is delivered as it came. After a reconnect each
+  channel resumes from its own last seq. Every lifetime close is followed by a reconnect, however
+  many there are, and each is counted.
+- The vocabulary gains `stream.close_waiting`. An SDK that does not run it yet lists it in its
+  `not-yet.json`; it is not skipped silently.
+
 ## 0.3.0
 
 - **idempotency**: a write sent again with the same key and already final is answered with its
