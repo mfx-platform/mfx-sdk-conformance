@@ -14,6 +14,7 @@ SDKs keep exactly the same promises.
 | [`fixtures.json`](fixtures.json) | API objects cases refer to by name with `$fixture`, so a case does not repeat a whole terminal. |
 | [`vocabulary.json`](vocabulary.json) | The neutral names cases use: operations, error kinds, markers and outcomes. A runner maps each to its language. |
 | [`src/mfx_fake_hub/`](src/mfx_fake_hub/) | The fake MFX Hub: checks every request against the case, verifies its signature with the test key, and answers as the case says. |
+| [`live/cases.json`](live/cases.json) | Rules a real MFX Hub shows on its own, run against it rather than the fake one. See [Running the live cases](#running-the-live-cases). |
 | [`spec/openapi.yaml`](spec/openapi.yaml) | The API description the cases are written from. `cases/errors.json` is generated from its error codes. |
 
 ## A case
@@ -39,7 +40,7 @@ gets (none here: it must refuse first), and `observe` is what the caller must se
 An SDK pins a release tag, so a new case reaches it only when it moves the pin.
 
 ```bash
-git clone --depth 1 --branch v0.4.0 https://github.com/mfx-platform/mfx-sdk-conformance
+git clone --depth 1 --branch v0.5.0 https://github.com/mfx-platform/mfx-sdk-conformance
 pip install ./mfx-sdk-conformance
 python -m mfx_fake_hub --cases mfx-sdk-conformance/cases   # prints: listening http://127.0.0.1:<port>/v1
 ```
@@ -54,6 +55,18 @@ Then, for each case:
    the case says, and nothing else did; otherwise `problems` says what differed.
 
 A case passes when both 3 and 4 hold. An SDK that fails a case does not release.
+
+## Running the live cases
+
+The cases in `live/` run against a real MFX Hub, with your own key, on a terminal that is logged
+in to a demo account. A real hub cannot be told how to answer, so each holds a rule it shows on its
+own: your signature is accepted and the published test key is refused, an unknown terminal is
+`not_found`, a list follows its cursor, a price is an exact decimal, an order sent twice with one
+idempotency key is one order, and ticks arrive in `seq` order. Values such as the terminal and a
+fresh idempotency key come from the run (`{"$run": "terminal_id"}`); the vocabulary's `live`
+section lists them and the extra observations live cases use. They send at most one market order,
+of the symbol's smallest volume, and the runner closes it. A case that `needs` a market is skipped,
+not failed, when the market is closed.
 
 ## The test key
 

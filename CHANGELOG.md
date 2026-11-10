@@ -5,6 +5,18 @@ an SDK that passed the previous one fail, which is the point.
 
 ## Unreleased
 
+## 0.5.0
+
+- **live**: a new set of nine cases, in `live/cases.json`, that run against a real MFX Hub rather
+  than the fake one: signing accepted and the test key refused, an unknown terminal not found, a
+  list that follows its cursor, an exact decimal price, a float volume refused, an order repeated
+  with one idempotency key that stays one order, and ticks in `seq` order. The fake hub never
+  loads them.
+- The vocabulary gains a `live` section: the run values a live case names, `client`, `needs`, and
+  the observations `includes`, `exact`, `ascending` and `repeat`. `terminals.list` takes an
+  optional `limit` and `catalog.quote` an optional `server_id`; a runner that ignores them still
+  passes every fake-hub case.
+
 ## 0.4.0
 
 - **stream**: four more cases, 12 in all. Closing the stream ends a read that is waiting, with
