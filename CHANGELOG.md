@@ -3,7 +3,14 @@
 Every release of the suite, newest first. An SDK pins a release; a new case in a release can make
 an SDK that passed the previous one fail, which is the point.
 
-## Unreleased
+## 0.6.0
+
+- **md**: four cases for market data by a cTrader account, in `cases/md.json`:
+  subscribing sends the account's own symbol name with the idempotency key and returns the
+  subscription, pending; subscribing on an MT5 account is a `state_error` (`not_on_this_venue`);
+  listing follows `next_cursor` to the end; candles are read by account, oldest first, with exact
+  decimal prices. The vocabulary gains `md.subscribe_account`, `md.account_subscriptions` and
+  `md.account_candles`. An SDK that has no `client.md` for cTrader accounts yet fails these.
 
 ## 0.5.0
 

@@ -123,6 +123,44 @@
         "reconnects"
       ],
       "note": "open the stream against the fake hub (reconnecting allowed, no real wait between attempts) and subscribe each channel in order. Start a read for the next message and leave it waiting while the hub sends nothing more (give it a moment, 100 ms). Close the stream. ended is true when the waiting read finished within 2 s with no message and no error; reconnects is the stream's count of connections after the first, which closing must leave at 0"
+    },
+    "md.subscribe_account": {
+      "args": [
+        "account_id",
+        "symbol",
+        "idempotency_key"
+      ],
+      "returns": [
+        "id",
+        "account_id",
+        "symbol",
+        "state"
+      ],
+      "note": "a cTrader account's market-data subscription; state is the word the API sends (pending until the first spot)"
+    },
+    "md.account_subscriptions": {
+      "args": [
+        "account_id"
+      ],
+      "returns": [
+        "symbols"
+      ],
+      "note": "follow next_cursor to the end; symbols is every subscription's symbol, in the order served"
+    },
+    "md.account_candles": {
+      "args": [
+        "account_id",
+        "symbol",
+        "timeframe",
+        "from",
+        "to"
+      ],
+      "returns": [
+        "count",
+        "first_open",
+        "last_close"
+      ],
+      "note": "from and to are ISO 8601 instants; count is the number of bars, and first_open and last_close are the first bar's open and the last bar's close (a $decimal compares as a decimal)"
     }
   },
   "markers": {

@@ -721,7 +721,7 @@ wheels = [
 
 [[package]]
 name = "mfx-sdk-conformance"
-version = "0.5.0"
+version = "0.6.0"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },

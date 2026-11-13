@@ -40,7 +40,7 @@ gets (none here: it must refuse first), and `observe` is what the caller must se
 An SDK pins a release tag, so a new case reaches it only when it moves the pin.
 
 ```bash
-git clone --depth 1 --branch v0.5.0 https://github.com/mfx-platform/mfx-sdk-conformance
+git clone --depth 1 --branch v0.6.0 https://github.com/mfx-platform/mfx-sdk-conformance
 pip install ./mfx-sdk-conformance
 python -m mfx_fake_hub --cases mfx-sdk-conformance/cases   # prints: listening http://127.0.0.1:<port>/v1
 ```
