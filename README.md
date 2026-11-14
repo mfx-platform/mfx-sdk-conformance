@@ -10,7 +10,7 @@ SDKs keep exactly the same promises.
 
 | Path | What it is |
 |---|---|
-| [`cases/`](cases/) | One JSON file per area: signing, errors, decimals, idempotency, paging, execution, stream. Each case is one rule. |
+| [`cases/`](cases/) | One JSON file per area: signing, errors, decimals, idempotency, paging, execution, stream, market data, risk. Each case is one rule. |
 | [`fixtures.json`](fixtures.json) | API objects cases refer to by name with `$fixture`, so a case does not repeat a whole terminal. |
 | [`vocabulary.json`](vocabulary.json) | The neutral names cases use: operations, error kinds, markers and outcomes. A runner maps each to its language. |
 | [`src/mfx_fake_hub/`](src/mfx_fake_hub/) | The fake MFX Hub: checks every request against the case, verifies its signature with the test key, and answers as the case says. |
@@ -40,7 +40,7 @@ gets (none here: it must refuse first), and `observe` is what the caller must se
 An SDK pins a release tag, so a new case reaches it only when it moves the pin.
 
 ```bash
-git clone --depth 1 --branch v0.6.0 https://github.com/mfx-platform/mfx-sdk-conformance
+git clone --depth 1 --branch v0.7.0 https://github.com/mfx-platform/mfx-sdk-conformance
 pip install ./mfx-sdk-conformance
 python -m mfx_fake_hub --cases mfx-sdk-conformance/cases   # prints: listening http://127.0.0.1:<port>/v1
 ```

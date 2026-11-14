@@ -161,6 +161,55 @@
         "last_close"
       ],
       "note": "from and to are ISO 8601 instants; count is the number of bars, and first_open and last_close are the first bar's open and the last bar's close (a $decimal compares as a decimal)"
+    },
+    "risk.check": {
+      "args": [
+        "account_id",
+        "symbol",
+        "side",
+        "volume"
+      ],
+      "returns": [
+        "verdict"
+      ],
+      "note": "check a market order already sized against the account's rules (client.risk.check); nothing is sent to the broker"
+    },
+    "risk.create_plan": {
+      "args": [
+        "account_id",
+        "symbol",
+        "side",
+        "volume",
+        "idempotency_key"
+      ],
+      "returns": [
+        "id"
+      ],
+      "note": "an exit plan placed with its market order and one step: at 1R close half, held by MFX Hub ({trigger: {kind: r, value: \"1\"}, action: {kind: close_part, pct: \"50\"}, held_by: mfx})"
+    },
+    "risk.create_policy": {
+      "args": [
+        "name",
+        "rules",
+        "reset",
+        "idempotency_key"
+      ],
+      "returns": [
+        "id",
+        "version"
+      ],
+      "note": "rules and reset are passed as given; version is the policy's current version"
+    },
+    "risk.challenge_accounts": {
+      "args": [
+        "challenge_id",
+        "state",
+        "sort"
+      ],
+      "returns": [
+        "ids"
+      ],
+      "note": "every account of the challenge, following the cursor; state is a list sent as repeated parameters; ids are the account ids in order"
     }
   },
   "markers": {

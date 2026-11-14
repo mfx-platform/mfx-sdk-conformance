@@ -292,3 +292,47 @@ async def test_a_last_step_taking_any_number_is_satisfied_by_one(aiohttp_client:
     await client.post("/_hub/case", json={"id": "c"})
     await client.get(PATH, headers=signed("GET", PATH))
     assert (await verdict(client))["ok"]
+
+
+async def test_a_filter_given_several_values_is_matched_as_the_list_of_them(
+    aiohttp_client: Any,
+) -> None:
+    """Given a step expecting a filter with two values, as repeated parameters, and a sort
+    When a request repeats the filter in that order, then one with the values the other way round,
+    and one with a single value where one is expected
+    Then the first and the last match and the second is named as differing; a case writing a
+    list of one value expects that one value."""
+    steps = [
+        {
+            "expect": {
+                "method": "GET",
+                "path": "/v1/risk/plans",
+                "query": {"state": ["armed", "managing"], "sort": "oldest"},
+            },
+            "answer": {"status": 200, "body": {}},
+        },
+        {
+            "expect": {
+                "method": "GET",
+                "path": "/v1/risk/plans",
+                "query": {"state": ["armed", "managing"]},
+            },
+            "answer": {"status": 200, "body": {}},
+        },
+        {
+            "expect": {"method": "GET", "path": "/v1/risk/plans", "query": {"state": ["armed"]}},
+            "answer": {"status": 200, "body": {}},
+        },
+    ]
+    client = await hub_client(aiohttp_client, case(steps))
+    await client.post("/_hub/case", json={"id": "c"})
+    for n, query in enumerate(
+        ("state=armed&state=managing&sort=oldest", "state=managing&state=armed", "state=armed")
+    ):
+        path = f"/v1/risk/plans?{query}"
+        await client.get(path, headers=signed("GET", path, nonce=str(n) * 16))
+    problems = (await verdict(client))["problems"]
+    assert len(problems) == 1 and "step 2" in problems[0] and "managing" in problems[0], problems
+    from mfx_fake_hub.server import query_of  # noqa: PLC0415
+
+    assert query_of({"a": "1"}) == {"a": "1"}

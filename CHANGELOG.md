@@ -3,6 +3,24 @@
 Every release of the suite, newest first. An SDK pins a release; a new case in a release can make
 an SDK that passed the previous one fail, which is the point.
 
+## 0.7.0
+
+- **risk**: six cases for Risk Management, in `cases/risk.json`.
+  - An order checked against the account's rules sends its volume as exact decimal text; a float
+    volume is refused before anything is sent.
+  - An entry a rule refuses is a `ValidationError` with code `risk_refused`, whose `details` name
+    the rule, the version and the figures as text.
+  - Creating a policy sends its rules as given with the `Idempotency-Key`, and a failed create is
+    never sent again.
+  - A challenge's accounts, filtered by several states and sorted by a figure, follow
+    `next_cursor` with the same filters and sort on every page.
+  The vocabulary gains `risk.check`, `risk.create_plan`, `risk.create_policy` and
+  `risk.challenge_accounts`. An SDK with no `client.risk` fails these.
+- The fake hub matches a filter given several values (repeated parameters) as the list of them,
+  in order. A case writes such a query value as a list.
+- **errors**: the API description is vendored again, and the error cases follow its codes,
+  `risk_refused`, `risk_override_required` and `venue_suspended` among them: 63 cases.
+
 ## 0.6.0
 
 - **md**: four cases for market data by a cTrader account, in `cases/md.json`:
