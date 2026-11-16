@@ -3,6 +3,18 @@
 Every release of the suite, newest first. An SDK pins a release; a new case in a release can make
 an SDK that passed the previous one fail, which is the point.
 
+## 0.7.1
+
+- **errors**: the API description is vendored again, and the
+  error cases follow its codes: 82 cases, 19 new. Among them are the sign-in and account codes
+  (`credentials_invalid`, `factor_required`, `step_up_required`, `session_required`,
+  `password_breached`, `password_too_short`, `password_too_long`, `email_in_use`, `code_invalid`,
+  `terms_outdated`, `organisation_required`, `origin_refused`, `caller_refused`,
+  `permission_denied`, `telegram_code_expired`, `recipients_required`) and the support codes
+  (`support_invalid`, `support_state`, `support_case_claimed`). Each is the error class its HTTP
+  status maps to, keeping the code. `preview_moved`, `preview_expired`, `bars_unreadable` and
+  `ticks_unreadable` were already covered in 0.7.0.
+
 ## 0.7.0
 
 - **risk**: six cases for Risk Management, in `cases/risk.json`.
