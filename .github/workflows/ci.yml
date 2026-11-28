@@ -32,7 +32,7 @@ jobs:
           uv run ruff format --check .
           uv run ruff check .
       - name: Strict types
-        run: uv run mypy src
+        run: uv run mypy src sdkref
       - name: The fake hub's tests, with 100% line coverage
         run: uv run pytest
       - name: The error cases are what the API description's codes give

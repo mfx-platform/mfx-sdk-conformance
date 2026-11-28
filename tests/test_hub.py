@@ -15,7 +15,7 @@ from typing import Any
 from aiohttp.test_utils import TestClient
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
-from mfx_fake_hub import TEST_KEY_ID, Case, Hub, make_app
+from mfx_fake_hub import TEST_KEY_ID, Case, Hub, load_cases, make_app
 from mfx_fake_hub.__main__ import serve
 from mfx_fake_hub.server import signing_message
 
@@ -336,3 +336,77 @@ async def test_a_filter_given_several_values_is_matched_as_the_list_of_them(
     from mfx_fake_hub.server import query_of  # noqa: PLC0415
 
     assert query_of({"a": "1"}) == {"a": "1"}
+
+
+def test_a_time_in_the_query_is_compared_as_an_instant_and_every_other_parameter_exactly() -> None:
+    """Given a step expecting two list filters exactly and a window as two instants
+    When requests send the window spelt as Z, with milliseconds or as +00:00, and others send it
+    missing, as no instant, without an offset, as another instant, or a filter that differs
+    Then every spelling of the same instants matches and the rest is named in the verdict, one
+    problem for each difference."""
+    from mfx_fake_hub.server import request_problems
+
+    expect = {
+        "method": "GET",
+        "path": "/v1/copy/log",
+        "query": {"outcome": "refused,skipped"},
+        "query_instants": {"from": "2026-11-12T00:00:00Z", "to": "2026-11-13T00:00:00Z"},
+    }
+
+    def problems(**query: str) -> list[str]:
+        return request_problems(expect, "GET", "/v1/copy/log", query, {}, b"")
+
+    for start, end in [
+        ("2026-11-12T00:00:00Z", "2026-11-13T00:00:00Z"),
+        ("2026-11-12T00:00:00.000Z", "2026-11-13T00:00:00.000Z"),
+        ("2026-11-12T00:00:00+00:00", "2026-11-13T04:00:00+04:00"),
+    ]:
+        assert problems(outcome="refused,skipped", **{"from": start, "to": end}) == []
+    assert problems(outcome="refused,skipped", to="2026-11-13T00:00:00Z") == [
+        "query has no from, expected the instant 2026-11-12T00:00:00Z"
+    ]
+    assert problems(outcome="refused", **{"from": "yesterday", "to": "2026-11-13T00:00:00"}) == [
+        "query {'outcome': 'refused'}, expected {'outcome': 'refused,skipped'}",
+        "query from is 'yesterday', expected the instant 2026-11-12T00:00:00Z",
+        "query to is '2026-11-13T00:00:00', expected the instant 2026-11-13T00:00:00Z",
+    ]
+    assert problems(
+        outcome="refused,skipped", **{"from": "2026-11-12T00:00:01Z", "to": "2026-11-13T00:00:00Z"}
+    ) == ["query from is '2026-11-12T00:00:01Z', expected the instant 2026-11-12T00:00:00Z"]
+    unfiltered = {"method": "GET", "query_instants": {"from": "2026-11-12T00:00:00Z"}}
+    assert (
+        request_problems(
+            unfiltered, "GET", "/", {"from": "2026-11-12T00:00:00Z", "x": "1"}, {}, b""
+        )
+        == []
+    )
+
+
+#: The suite's own case: one client, three answers carrying MFX-Service-Agreement: due.
+DUE_THRICE = load_cases(Path(__file__).resolve().parents[1] / "cases")[
+    "agreement.due_header_warns_once_per_client"
+]
+
+
+async def test_the_hub_sends_the_due_header_on_every_answer_a_warning_case_names(
+    aiohttp_client: Any,
+) -> None:
+    """Given the suite's case where one client sees MFX-Service-Agreement: due three times
+    When an SDK makes the three reads, signed
+    Then each answer carries the header and the terminal, and the verdict is ok; and when only two
+    of the three reads arrive, the verdict names the step as never done."""
+    once = DUE_THRICE
+    path = once.server[0].expect["path"]
+    client = await hub_client(aiohttp_client, once)
+    results = []
+    for reads in (3, 2):
+        await client.post("/_hub/case", json={"id": once.id})
+        for n in range(reads):
+            answer = await client.get(path, headers=signed("GET", path, nonce=f"due-nonce-{n}" * 2))
+            assert answer.status == 200
+            assert answer.headers["MFX-Service-Agreement"] == "due"
+            assert (await answer.json())["id"] == path.rsplit("/", 1)[1]
+        results.append(await verdict(client))
+    assert results[0]["ok"] is True
+    assert results[1]["ok"] is False
+    assert results[1]["problems"] == [f"step 1 (GET {path}) never arrived"]

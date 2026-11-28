@@ -30,10 +30,24 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 
+#: The test-case area codes: a case id of the second scheme is ``TC-``, one of these, and four
+#: digits. This closed list MUST agree with the one the test-results publisher holds (and the
+#: private tracker plugin copies), so nothing it would record can be published. Longest code
+#: first, as the publisher builds its pattern.
+_TC_AREAS = sorted(
+    (
+        "CP", "AGENT", "INFRA", "DOCS", "SDK", "ADMIN", "BILL", "SUP",
+        "PORTAL", "RISK", "SEC", "COPY", "CTRD", "IDN", "TRADE", "CX",
+    ),
+    key=lambda code: (-len(code), code),
+)  # fmt: skip
+
 #: Identifiers that are internal by their shape.
 INTERNAL = re.compile(
     # Written so that these lines do not match themselves when this file is scanned.
     r"design[/]|\bDEC-\d+|AB#\d+|\bADR-\d+|TC-S[1]-|§ ?\d"
+    # A test-case id of the area scheme; the codes are joined in, so no id is spelt out here.
+    r"|TC-(?:" + "|".join(_TC_AREAS) + r")-\d{4}"
     # A tracker area path is upper case - MFX, a backslash, a capital. A lower-case file path that
     # starts the same way is not one.
     r"|(?-i:MFX[\\]{1,2}[A-Z])|\bLane \d|-intern[a]l\b",

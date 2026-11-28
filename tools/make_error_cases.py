@@ -34,6 +34,9 @@ BY_CODE = {
     "maintenance": "MaintenanceError",
     "not_found": "NotFoundError",
     "conflict": "ConflictError",
+    # Both are ConflictErrors (409) of their own kind, as the plan agreements ask the SDKs to raise.
+    "service_agreement_not_accepted": "ServiceAgreementNotAcceptedError",
+    "terms_not_accepted": "TermsNotAcceptedError",
     "state_error": "StateError",
     "placement_error": "PlacementError",
     "broker_not_supported": "UnsupportedBrokerError",
